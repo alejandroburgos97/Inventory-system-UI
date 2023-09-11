@@ -1,0 +1,36 @@
+:host ::ng-deep .p-dialog .product-image {
+    width: 150px;
+    margin: 0 auto 2rem auto;
+    display: block;
+}
+
+.filter-container {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .filter-container .filter-input {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  
+  .filter-container input {
+    margin: 0;
+    padding: 5px;
+  }
+
+  .custom-calendar {
+    height: 32px;
+  }
+  
+  .custom-input {
+    height: 40px; 
+  }
+
+  .error-message {
+    color: red;
+    font-size: 14px;
+    font-weight: bold;
+
+}

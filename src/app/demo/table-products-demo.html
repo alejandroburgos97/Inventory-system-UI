@@ -1,0 +1,138 @@
+
+<div class="card">
+    <p-toast></p-toast>
+    <p-toolbar styleClass="mb-4 gap-2">
+        <ng-template pTemplate="left">
+            <button pButton pRipple label="New" icon="pi pi-plus" class="p-button-success mr-2" (click)="openNew()"></button>
+        </ng-template>
+
+        <ng-template pTemplate="right">
+            <div>
+                <p-dropdown [options]="users" [(ngModel)]="selectedUser" placeholder="Select a user"></p-dropdown>
+            </div>
+        </ng-template>
+    </p-toolbar>
+
+    <p-table
+        #dt
+        [value]="products"
+        [rows]="10"
+        [paginator]="true"
+        [globalFilterFields]="['name', 'country.name', 'representative.name', 'status']"
+        [tableStyle]="{ 'min-width': '75rem' }"
+        [(selection)]="selectedProducts"
+        [rowHover]="true"
+        dataKey="id"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        [showCurrentPageReport]="true"
+    >
+        <ng-template pTemplate="caption">
+            <div class="flex align-items-center justify-content-between">
+                <div class="filter-container m-0">
+                  
+                    <!-- Filtro de usuario -->
+                    <div class="filter-input">
+                      <input pInputText placeholder="Producto" [(ngModel)]="filterByName" class="custom-input">
+                    </div>
+                  
+                    <!-- Filtro por nombre -->
+                    <div class="filter-input">
+                        <p-dropdown [options]="users" [(ngModel)]="filterByUser" placeholder="Select a user" [style]="{ 'height': '40px', 'line-height': '1.5' }" ></p-dropdown>
+                    </div>
+
+                    <!-- Filtro de fecha -->
+                    <div class="filter-input">
+                        <p-calendar placeholder="Fecha" [(ngModel)]="filterByDate" [style]="{ 'height': '40px', 'line-height': '1.5' }"></p-calendar>
+                    </div>
+
+                    <button pButton icon="pi pi-search" (click)="applyFilters()"></button>
+
+                </div>
+                <span class="p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" (input)="dt.filterGlobal($event.target.value, 'contains')" placeholder="Search..." />
+                </span>
+            </div>
+            <small class="p-error" *ngIf="filterError">Please enter at least one filter..</small>
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <th style="width: 4rem">
+                    <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                </th>
+                <th style="min-width:10rem">Nombre</th>
+                <th>Cantidad</th>
+                <th>Fecha de ingreso</th>
+                <th style="min-width:10rem">Usuario que registra</th>
+                <th>Fecha de edición</th>
+                <th style="min-width:10rem">Usuario que edita</th>
+                <th></th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-product>
+            <tr>
+                <td>
+                    <p-tableCheckbox [value]="product"></p-tableCheckbox>
+                </td>
+                <td>{{ product.name }}</td>
+                <td>{{ product.quantity }}</td>
+                <td>{{ product.entryDate }}</td>
+                <td>{{ userMap[product.registeredUserId] }}</td>
+                <td>{{ product.modificationDate }}</td>
+                <td>{{ userMap[product.modifiedUserId] }}</td>
+                
+                <td>
+                    <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" (click)="editProduct(product)"></button>
+                    <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning" (click)="deleteProduct(product)"></button>
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="summary">
+            <div class="flex align-items-center justify-content-between">In total there are {{ products ? products.length : 0 }} products.</div>
+        </ng-template>
+    </p-table>
+</div>
+<p-dialog [(visible)]="productDialog" [style]="{ width: '450px' }" header="Product Details" [modal]="true" styleClass="p-fluid">
+    <ng-template pTemplate="content">
+
+            <div class="field">
+                <label for="name">Name</label>
+                <input type="text" pInputText id="name" [(ngModel)]="product.name" required autofocus />
+                <small class="p-error" *ngIf="submitted && !product.name">Name is required.</small>
+            </div>
+            <div class="field">
+                <label for="description">Cantidad</label>
+                <textarea id="description" pInputTextarea [(ngModel)]="product.quantity" required rows="1" cols="20"></textarea>
+            </div>
+            <div class="field">
+                <label for="description">Fecha de ingreso</label>
+                <p-calendar dateFormat="yy-mm-dd" id="description" [(ngModel)]="product.entryDate" required></p-calendar>
+            </div>
+            <div class="field">
+                <label for="description">Registrado por</label>
+                <textarea
+                    id="description"
+                    pInputTextarea
+                    required
+                    rows="1"
+                    cols="20"
+                    [disabled]="true"
+                >{{ productAddNew ? userMap[selectedUser] : userMap[product.registeredUserId] }}</textarea>
+            </div>
+            <div class="field">
+                <label for="description">Fecha última edición</label>
+                <p-calendar dateFormat="yy-mm-dd" id="description" [(ngModel)]="product.modificationDate" required></p-calendar>
+            </div>
+            <div class="field">
+                <label for="description">Editado por</label>
+                <textarea id="description" pInputTextarea required rows="1" cols="20" [disabled]="true">{{userMap[selectedUser]}}</textarea>
+            </div>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+        <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+        <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="saveProduct()"></button>
+    </ng-template>
+</p-dialog>
+
+<p-confirmDialog [style]="{ width: '450px' }"></p-confirmDialog>
